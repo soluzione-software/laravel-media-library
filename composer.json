@@ -1,0 +1,27 @@
+{
+    "name": "soluzione-software/laravel-media-library",
+    "authors": [
+        {
+            "name": "Yuriy Martini",
+            "email": "y.martini@soluzionesoftware.com",
+            "homepage": "https://github.com/yuriy-martini",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "spatie/laravel-medialibrary": "^7.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SoluzioneSoftware\\LaravelMediaLibrary\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SoluzioneSoftware\\LaravelMediaLibrary\\ServiceProvider"
+            ]
+        }
+    }
+}
