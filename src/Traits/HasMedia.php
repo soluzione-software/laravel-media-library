@@ -18,7 +18,9 @@ trait HasMedia
      */
     public static function getMediaMediaLibraryValidation()
     {
-        return static::$mediaLibraryValidation;
+        return [
+            'default' => []
+        ];
     }
 
     /**
@@ -26,7 +28,9 @@ trait HasMedia
      */
     public static function getMediaMediaLibraryCollections()
     {
-        return static::$mediaLibraryCollections;
+        return [
+            'default'
+        ];
     }
 
     /**
@@ -34,7 +38,7 @@ trait HasMedia
      */
     public static function getMediaMediaLibraryConversions()
     {
-        return static::$mediaLibraryConversions;
+        return [];
     }
 
     /**

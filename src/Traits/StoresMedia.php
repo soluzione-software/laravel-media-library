@@ -4,20 +4,20 @@
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
 
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
+use SoluzioneSoftware\LaravelMediaLibrary\Contracts\HasMedia as HasMediaContract;
 use SoluzioneSoftware\LaravelMediaLibrary\Models\Media;
 
 trait StoresMedia
 {
     /**
-     * @see ValidatesMedia::storeMediaRules
      * @param FormRequest $request
-     * @param Model|HasMedia $model
+     * @param HasMediaContract $model
      * @return boolean
+     * @see ValidatesMedia::storeMediaRules
      */
-    private function storeMedia(FormRequest $request, Model $model)
+    private function storeMedia(FormRequest $request, HasMediaContract $model)
     {
         $validated = $request->validated();
 
@@ -41,11 +41,11 @@ trait StoresMedia
 
     /**
      * @param FormRequest $request
-     * @param Model|HasMedia $model
+     * @param HasMediaContract $model
      * @return boolean
      * @see ValidatesMedia::updateMediaRules
      */
-    private function updateMedia(FormRequest $request, Model $model)
+    private function updateMedia(FormRequest $request, HasMediaContract $model)
     {
         $validated = $request->validated();
 
