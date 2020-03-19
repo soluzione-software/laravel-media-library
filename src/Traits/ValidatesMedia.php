@@ -32,6 +32,8 @@ trait ValidatesMedia
 //                    '<collectionName>' => [
 //                        [
 //                            'file' => '...',
+//                            // or
+//                            'pending_media_id' => '<pendingMediaId>',
 //                            'properties' => [
 //                                'key1' => 'Value1',
 //                                // other properties...
@@ -63,7 +65,42 @@ trait ValidatesMedia
 
             $rules["media.store.$collection"] = $rulesForCollection;
             $rules["media.store.$collection.*.file"] = $rulesForFile;
+
+            $rules["media.store.$collection.*.pending_media_id"] = ['required_without:' . "media.store.$collection.*.file", 'exists:pending_media,id'];
         }
+
+        return $rules;
+    }
+
+    /**
+     * @param string|HasMedia $modelClass
+     * @param string $collection
+     * @return array
+     */
+    protected function storePendingMediaRules($modelClass, string $collection)
+    {
+//         request data
+//        [
+//            'media' => [
+//                'file' => '...',
+//                'properties' => [
+//                    'key1' => 'Value1',
+//                    // other properties...
+//                ]
+//            ]
+//        ];
+
+        $rules = [
+            'media' => ['required', 'array'],
+        ];
+
+        $commonRules = $this->getValidationCommonRules($modelClass, $collection);
+        $creationRules = $this->getValidationCreationRules($modelClass, $collection);
+
+        $commonRulesForFile = array_merge(Arr::get($commonRules, 'file', []), ['required']);
+        $creationRulesForFile = Arr::get($creationRules, 'file', []);
+
+        $rules["media.file"] = array_merge($commonRulesForFile, $creationRulesForFile);
 
         return $rules;
     }
@@ -80,12 +117,21 @@ trait ValidatesMedia
 //            'media' => [
 //                'store' => [
 //                    '<collectionName>' => [
-//                        ['file' => '...'],
+//                        [
+//                            'file' => '...',
+//                            // or
+//                            'pending_media_id' => '<pendingMediaId>',
+//                        ],
 //                        // ...
 //                    ]
 //                ],
 //                'update' => [
-//                    ['id' => '<mediaId>', 'file' => '...'],
+//                    [
+//                        'id' => '<mediaId>',
+//                        'file' => '...',
+//                        // or
+//                        'pending_media_id' => '<pendingMediaId>',
+//                    ],
 //                    // ...
 //                ],
 //                'delete' => [
@@ -118,10 +164,46 @@ trait ValidatesMedia
             $rules["media.store.$collection"] = $rulesForCollection;
             $rules["media.update.$collection"] = $rulesForCollection;
             $rules["media.store.$collection.*.file"] = $rulesForFile;
-            $rules["media.update.$collection.*.file"] = $rulesForFile;
+            $rules["media.update.*.file"] = $rulesForFile;
+
+            $rules["media.store.$collection.*.pending_media_id"] = ['required_without:' . "media.store.$collection.*.file", 'exists:pending_media,id'];
+            $rules["media.update.*.pending_media_id"] = ['required_without:' . "media.update.*.file", 'exists:pending_media,id'];
 
             $rules = Arr::add($rules, "media.delete.*", 'integer'); // fixme: use 'exists' rule
         }
+
+        return $rules;
+    }
+
+    /**
+     * @param string|HasMedia $modelClass
+     * @param string $collection
+     * @return array
+     */
+    protected function updatePendingMediaRules($modelClass, string $collection)
+    {
+//         request data
+//        [
+//            'media' => [
+//                'file' => '...',
+//                'properties' => [
+//                    'key1' => 'Value1',
+//                    // other properties...
+//                ]
+//            ]
+//        ];
+
+        $rules = [
+            'media' => ['required', 'array'],
+        ];
+
+        $commonRules = $this->getValidationCommonRules($modelClass, $collection);
+        $updateRules = $this->getValidationUpdateRules($modelClass, $collection);
+
+        $commonRulesForFile = array_merge(Arr::get($commonRules, 'file', []), ['required']);
+        $updateRulesForFile = Arr::get($updateRules, 'file', []);
+
+        $rules["media.file"] = array_merge($commonRulesForFile, $updateRulesForFile);
 
         return $rules;
     }
@@ -134,7 +216,7 @@ trait ValidatesMedia
      */
     private function getValidationRules($modelClass, string $collectionName, string $type = 'rules')
     {
-        return Arr::get($modelClass::getMediaMediaLibraryValidation(), "$collectionName.$type", []);
+        return Arr::wrap(Arr::get($modelClass::getMediaMediaLibraryValidation(), "$collectionName.$type"));
     }
 
     /**

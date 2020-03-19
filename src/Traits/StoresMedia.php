@@ -4,10 +4,17 @@
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
 
 
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use SoluzioneSoftware\LaravelMediaLibrary\Contracts\HasMedia as HasMediaContract;
 use SoluzioneSoftware\LaravelMediaLibrary\Models\Media;
+use SoluzioneSoftware\LaravelMediaLibrary\Models\PendingMedia;
+use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\DiskDoesNotExist;
+use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\FileDoesNotExist;
+use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\FileIsTooBig;
+use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\RequestDoesNotHaveFile;
 
 trait StoresMedia
 {
@@ -28,10 +35,7 @@ trait StoresMedia
                 // store new
                 $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
                 for ($i = 0; $i < count($mediaItemsToStore); $i++){
-                    $model
-                        ->addMediaFromRequest("media.store.$collectionName.$i.file")
-                        // todo: add custom properties
-                        ->toMediaCollection($collectionName);
+                    $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
                 }
             }
 
@@ -56,10 +60,7 @@ trait StoresMedia
                 // store new
                 $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
                 for ($i = 0; $i < count($mediaItemsToStore); $i++){
-                    $model
-                        ->addMediaFromRequest("media.store.$collectionName.$i.file")
-                        // todo: add custom properties
-                        ->toMediaCollection($collectionName);
+                    $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
                 }
 
                 // update
@@ -72,10 +73,7 @@ trait StoresMedia
                     }
                     $collectionName = $media->collection_name;
                     $media->delete();
-                    $model
-                        ->addMediaFromRequest("media.update.$i.file")
-                        // todo: add custom properties
-                        ->toMediaCollection($collectionName);
+                    $this->addMedia($model, "media.update.$i.", $validated, $collectionName);
                 }
 
                 // delete
@@ -91,5 +89,70 @@ trait StoresMedia
 
             return true;
         }, false);
+    }
+
+    /**
+     * @param PendingMedia $model
+     * @return \Spatie\MediaLibrary\Models\Media
+     * @throws DiskDoesNotExist
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     * @see ValidatesMedia::storePendingMediaRules()
+     */
+    private function storePendingMedia(PendingMedia $model)
+    {
+        return $this->addMedia($model, 'media.');
+    }
+
+    /**
+     * @param PendingMedia $model
+     * @return \Spatie\MediaLibrary\Models\Media
+     * @throws DiskDoesNotExist
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     * @see ValidatesMedia::updatePendingMediaRules()
+     */
+    private function updatePendingMedia(PendingMedia $model)
+    {
+        $model->media()->delete();
+
+        return $this->addMedia($model, 'media.');
+    }
+
+    /**
+     * @param HasMediaContract $model
+     * @param string|null $inputPrefix
+     * @param array|null $validatedInputs
+     * @param string|null $collectionName
+     * @return Media|null
+     * @throws DiskDoesNotExist
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     * @throws Exception
+     */
+    private function addMedia(HasMediaContract $model, ?string $inputPrefix = '', ?array $validatedInputs = [], ?string $collectionName = 'default')
+    {
+        try {
+            $media = $model
+                ->addMediaFromRequest("{$inputPrefix}file")
+                // todo: add custom properties
+                ->toMediaCollection($collectionName);
+        }
+        catch (RequestDoesNotHaveFile $exception){
+            /** @var PendingMedia|null $pendingMedia */
+            $pendingMedia = PendingMedia::query()->find(Arr::get($validatedInputs, "{$inputPrefix}pending_media_id"));
+            if (is_null($pendingMedia)){
+                Log::info('PendingMedia not found');
+                return null;
+            }
+
+            /** @var Media|null $mediaItem */
+            $mediaItem = $pendingMedia->media()->first();
+            $media = $mediaItem->move($model, $collectionName);
+
+            $pendingMedia->delete();
+        }
+
+        return $media;
     }
 }
