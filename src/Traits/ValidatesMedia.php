@@ -55,10 +55,10 @@ trait ValidatesMedia
             $commonRules = $this->getValidationCommonRules($modelClass, $collection);
             $creationRules = $this->getValidationCreationRules($modelClass, $collection);
 
-            $commonRulesForCollection = Arr::get($commonRules, 'collection');
-            $creationRulesForCollection = Arr::get($creationRules, 'collection');
-            $commonRulesForFile = Arr::get($commonRules, 'file');
-            $creationRulesForFile = Arr::get($creationRules, 'file');
+            $commonRulesForCollection = Arr::get($commonRules, 'collection', []);
+            $creationRulesForCollection = Arr::get($creationRules, 'collection', []);
+            $commonRulesForFile = Arr::get($commonRules, 'file', []);
+            $creationRulesForFile = Arr::get($creationRules, 'file', []);
 
             $rulesForCollection = array_merge($commonRulesForCollection, $creationRulesForCollection);
             $rulesForFile = array_merge($commonRulesForFile, $creationRulesForFile);
