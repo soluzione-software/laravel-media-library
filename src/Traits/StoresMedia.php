@@ -21,7 +21,7 @@ trait StoresMedia
     /**
      * @param FormRequest $request
      * @param HasMediaContract $model
-     * @return boolean
+     * @return bool
      * @see ValidatesMedia::storeMediaRules
      */
     private function storeMedia(FormRequest $request, HasMediaContract $model)
@@ -46,7 +46,7 @@ trait StoresMedia
     /**
      * @param FormRequest $request
      * @param HasMediaContract $model
-     * @return boolean
+     * @return bool
      * @see ValidatesMedia::updateMediaRules
      */
     private function updateMedia(FormRequest $request, HasMediaContract $model)
