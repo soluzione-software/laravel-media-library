@@ -1,14 +1,16 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
 
-
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Spatie\MediaLibrary\MediaCollection\MediaCollection;
 use Spatie\MediaLibrary\Models\Media;
 
+/**
+ * @property-read Collection media
+ */
 trait HasMedia
 {
     use HasMediaTrait;

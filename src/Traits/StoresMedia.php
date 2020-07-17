@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
-
 
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
@@ -59,6 +57,7 @@ trait StoresMedia
             foreach ($collections as $collectionName => $collectionProperties) {
                 // store new
                 $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
+
                 for ($i = 0; $i < count($mediaItemsToStore); $i++){
                     $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
                 }

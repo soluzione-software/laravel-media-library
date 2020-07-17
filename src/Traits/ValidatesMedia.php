@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
-
 
 use Illuminate\Support\Arr;
 

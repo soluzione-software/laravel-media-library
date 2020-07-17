@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Http\Requests;
-
 
 class StorePendingMediaRequest extends PendingMediaRequest
 {

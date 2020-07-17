@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Contracts;
-
 
 use Spatie\MediaLibrary\FileAdder\FileAdder;
 

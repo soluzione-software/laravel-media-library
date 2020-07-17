@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Http\Controllers;
-
 
 use Exception;
 use Illuminate\Http\JsonResponse;

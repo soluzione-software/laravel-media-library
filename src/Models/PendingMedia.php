@@ -1,8 +1,6 @@
 <?php
 
-
 namespace SoluzioneSoftware\LaravelMediaLibrary\Models;
-
 
 use Illuminate\Database\Eloquent\Model;
 use SoluzioneSoftware\LaravelMediaLibrary\Contracts\HasMedia as HasMediaContract;
