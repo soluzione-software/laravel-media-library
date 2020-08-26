@@ -1,4 +1,6 @@
 <?php
+/** @noinspection PhpRedundantCatchClauseInspection */
+/** @noinspection PhpUnusedPrivateMethodInspection */
 
 namespace SoluzioneSoftware\LaravelMediaLibrary\Traits;
 
@@ -17,9 +19,13 @@ use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\RequestDoesNotHaveFile;
 trait StoresMedia
 {
     /**
-     * @param FormRequest $request
-     * @param HasMediaContract $model
-     * @return bool
+     * @param  FormRequest  $request
+     * @param  HasMediaContract  $model
+     * @return void
+     * @throws DiskDoesNotExist
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     *
      * @see ValidatesMedia::storeMediaRules
      */
     private function storeMedia(FormRequest $request, HasMediaContract $model)
@@ -28,23 +34,24 @@ trait StoresMedia
 
         $collections = $model::getMediaMediaLibraryCollections();
 
-        return rescue(function () use ($collections, $validated, $model) {
-            foreach ($collections as $collectionName => $collectionProperties) {
-                // store new
-                $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
-                for ($i = 0; $i < count($mediaItemsToStore); $i++){
-                    $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
-                }
+        foreach ($collections as $collectionName => $collectionProperties) {
+            // store new
+            $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
+            for ($i = 0; $i < count($mediaItemsToStore); $i++){
+                $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
             }
-
-            return true;
-        }, false);
+        }
     }
 
     /**
-     * @param FormRequest $request
-     * @param HasMediaContract $model
-     * @return bool
+     * @param  FormRequest  $request
+     * @param  HasMediaContract  $model
+     * @return void
+     * @throws DiskDoesNotExist
+     * @throws FileDoesNotExist
+     * @throws FileIsTooBig
+     * @throws Exception
+     *
      * @see ValidatesMedia::updateMediaRules
      */
     private function updateMedia(FormRequest $request, HasMediaContract $model)
@@ -53,41 +60,37 @@ trait StoresMedia
 
         $collections = $model::getMediaMediaLibraryCollections();
 
-        return rescue(function () use ($collections, $validated, $model) {
-            foreach ($collections as $collectionName => $collectionProperties) {
-                // store new
-                $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
+        foreach ($collections as $collectionName => $collectionProperties) {
+            // store new
+            $mediaItemsToStore = Arr::get($validated, "media.store.$collectionName", []);
 
-                for ($i = 0; $i < count($mediaItemsToStore); $i++){
-                    $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
-                }
-
-                // update
-                $mediaItemsToUpdate = Arr::get($validated, "media.update", []);
-                for ($i = 0; $i < count($mediaItemsToUpdate); $i++){
-                    /** @var Media|null $media */
-                    $media = $model->media()->where('id', Arr::get($mediaItemsToUpdate[$i], 'id'))->first();
-                    if (is_null($media)){
-                        continue;
-                    }
-                    $collectionName = $media->collection_name;
-                    $media->delete();
-                    $this->addMedia($model, "media.update.$i.", $validated, $collectionName);
-                }
-
-                // delete
-                foreach (Arr::get($validated, "media.delete", []) as $id) {
-                    $media = $model->media()->where('id', $id)->first();
-                    if (is_null($media)){
-                        continue;
-                    }
-
-                    $media->delete();
-                }
+            for ($i = 0; $i < count($mediaItemsToStore); $i++){
+                $this->addMedia($model, "media.store.$collectionName.$i.", $validated, $collectionName);
             }
 
-            return true;
-        }, false);
+            // update
+            $mediaItemsToUpdate = Arr::get($validated, "media.update", []);
+            for ($i = 0; $i < count($mediaItemsToUpdate); $i++){
+                /** @var Media|null $media */
+                $media = $model->media()->where('id', Arr::get($mediaItemsToUpdate[$i], 'id'))->first();
+                if (is_null($media)){
+                    continue;
+                }
+                $collectionName = $media->collection_name;
+                $media->delete();
+                $this->addMedia($model, "media.update.$i.", $validated, $collectionName);
+            }
+
+            // delete
+            foreach (Arr::get($validated, "media.delete", []) as $id) {
+                $media = $model->media()->where('id', $id)->first();
+                if (is_null($media)){
+                    continue;
+                }
+
+                $media->delete();
+            }
+        }
     }
 
     /**
@@ -96,6 +99,7 @@ trait StoresMedia
      * @throws DiskDoesNotExist
      * @throws FileDoesNotExist
      * @throws FileIsTooBig
+     *
      * @see ValidatesMedia::storePendingMediaRules()
      */
     private function storePendingMedia(PendingMedia $model)
@@ -109,6 +113,7 @@ trait StoresMedia
      * @throws DiskDoesNotExist
      * @throws FileDoesNotExist
      * @throws FileIsTooBig
+     *
      * @see ValidatesMedia::updatePendingMediaRules()
      */
     private function updatePendingMedia(PendingMedia $model)
