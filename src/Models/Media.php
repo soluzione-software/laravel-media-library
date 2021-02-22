@@ -3,7 +3,7 @@
 namespace SoluzioneSoftware\LaravelMediaLibrary\Models;
 
 use Illuminate\Support\Collection;
-use Spatie\MediaLibrary\Models\Media as SpatieMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media as SpatieMedia;
 
 /**
  * @property string $collection_name
@@ -12,8 +12,6 @@ use Spatie\MediaLibrary\Models\Media as SpatieMedia;
  */
 class Media extends SpatieMedia
 {
-    protected $table = 'media';
-
     protected $hidden = ['model_type', 'model_id', 'disk', 'size', 'manipulations', 'created_at', 'updated_at'];
 
     protected $appends = ['url', 'conversions'];
@@ -27,10 +25,10 @@ class Media extends SpatieMedia
     {
         return $this
             ->getGeneratedConversions()
-            ->filter(function ($value){
+            ->filter(function ($value) {
                 return $value;
             })
-            ->map(function ($value, $key){
+            ->map(function ($value, $key) {
                 return $this->getUrl($key);
             });
     }
